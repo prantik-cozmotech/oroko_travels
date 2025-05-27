@@ -2,16 +2,59 @@
 
 ## Login
 
-Django provides Base user model who can login in our web application. We can use Django's **authenticate**, **login** from `django.contrib.auth` module for user authentication and login. Once the user logs in `@login_required` decorator that works as a middleware that allows only authenticate user to access an API.
+Django provides Base user model who can login in our web application. We can use Django's **authenticate**, **login** from `django.contrib.auth` to verify and log users in.
+
+Once the user logs in `@login_required` decorator that restrict access to authenticated user only.
 
 ## Mailer
 
-Django have their own module to handle sending Emails **django.core.mail**.
+Django have built in module for sending Emails **django.core.mail**. Django built in module for sending mail although we can use our own backend from third party apps.
 
+### Django Built in Email System
+
+1. Configure email backend in **settings.py** :
+
+    ```python
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'your_email@gmail.com'
+    EMAIL_HOST_PASSWORD = 'your_password_or_app_specific_password'
+    ```
+
+1. Then we can send email as below :
+
+    ```python
+    from django.core.mail import send_mail
+
+    send_mail(
+        subject="Hello from Django",
+        message="This is a test email.",
+        from_email="you@example.com",
+        recipient_list=["user@example.com"],
+        fail_silently=False,
+    )
+    ```
+
+1. To send attachments or HTML emails we use **EmailMessage** instead of **send_mail**:
+
+    ```python
+    from django.core.mail import EmailMessage
+
+    email = EmailMessage(
+        subject="Invoice",
+        body="Attached your invoice.",
+        from_email="billing@example.com",
+        to=["customer@example.com"],
+    )
+    email.attach_file('invoice.pdf')
+    email.send()
+    ```
 
 ## DB Connection
 
-To connect Django project to a PostgresSQL we have to add below in `settings.py` file of our project, fields must be changed according to the database configuration
+To connect Django project to a PostgresSQL databse we have to add below configurations in `settings.py` file of our project, values should match with the database setup :
 
 ```python
 DB_NAME = "oroko_travels"
@@ -32,9 +75,7 @@ DATABASES = {
 
 ## S3 connection for file storage
 
-**Boto3** is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python, which allows Python developers to write software that makes use of services like Amazon S3 and Amazon EC2.
-
-The library **django-storage** contains multiple backend for file storage, it also supports **Amazon S3**.
+Django supports file storage using Amazon S3 via **boto3** and **django-storages**
 
 1. Install both packages :
 
@@ -49,15 +90,15 @@ The library **django-storage** contains multiple backend for file storage, it al
     # settings.py
 
     INSTALLED_APPS = [
-    ....,
-    'storages',
+        ....,
+        'storages',
     ]
 
     STATIC_URL = 'static/'
     MEDIA_URL = 'media/'
 
     AWS_ACCESS_KEY_ID = 'your_access_key_id'
-    AWS_SECRET_ACCESS_KEY = 'your_secret_access_key'/v'
+    AWS_SECRET_ACCESS_KEY = 'your_secret_access_key'
     AWS_STORAGE_BUCKET_NAME = 'your_bucket_name'
     AWS_S3_REGION_NAME = 'your_bucket_region'
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
@@ -91,9 +132,9 @@ The library **django-storage** contains multiple backend for file storage, it al
         file = models.FileField(upload_to="documents/")
     ```
 
-    With this configuration the file will automatically get uploaded to **S3 bucket** inside `document/` folder.
+    Uploaded file will automatically get stored to **S3 bucket** inside `documents/` folder.
 
-4. Below is a simple example on uploading a file from view :
+4. Below is a simple example for uploading a file from view or shell:
 
     ```python
     from myapp.models import Document
@@ -104,7 +145,7 @@ The library **django-storage** contains multiple backend for file storage, it al
 
 ## Rate Limiter and Redis
 
-We can enforce **Rate limiting** in our Django app APIs using the **django-ratelimit** library and Djnago cache backend Redis.
+We can enforce **Rate limiting** in our Django app APIs using the **django-ratelimit** library and Redis as cache backend.
 
 1. Install **django-ratelimit** :
 
@@ -133,7 +174,7 @@ We can enforce **Rate limiting** in our Django app APIs using the **django-ratel
 
     from django_ratelimit.decorators import ratelimit
 
-    @ratelimit(key='ip', rate='100/h')
+    @ratelimit(key='ip', rate='100/h', black=True)
     def homeview(request):
         ....
 
@@ -160,9 +201,9 @@ We can enforce **Rate limiting** in our Django app APIs using the **django-ratel
 
 ## CSRF Token
 
-Django have built-in CSRF protection through it's middleware.
+Django have built-in CSRF protection enabled via middleware.
 
-1. Enable it by enabling CSRF protection middleware in **settings.py** :
+1. Ensure the CSRF protection middleware is enabled in **settings.py** :
 
     ```python
 
@@ -175,7 +216,7 @@ Django have built-in CSRF protection through it's middleware.
 
     ```
 
-2. To use CSRF token in Forms just include `{% csrf_token %}` template tag in your form:
+2. To use CSRF token in Forms just include `{% csrf_token %}` in your form:
 
     ```html
     <form method="post" action="/submit-data/">
@@ -203,6 +244,7 @@ In Django CORS can be managed using `django-cors-headers` library.
         ...,
         "corsheaders",
         ...,
+    ]
     ```
 
 1. Enable the app middleware:
@@ -213,7 +255,7 @@ In Django CORS can be managed using `django-cors-headers` library.
         "corsheaders.middleware.CorsMiddleware",
         "django.middleware.common.CommonMiddleware",
         ...,
-        ]
+    ]
     ```
 
 1. You can allow the URLs be adding them as below :
