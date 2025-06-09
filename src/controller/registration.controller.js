@@ -6,7 +6,7 @@ import errorHandler from "../handler/error.handler.js";
 const register = async (req, res) => {
   try {
 
-    console.log("Req body => ", req.body)
+    console.log("Req body => ", req.body.body)
 
     const registrationPayload = {
       username: req.body.username || "",

@@ -16,7 +16,8 @@ dotenv.config()
 const PORT = parseInt(process.env.SERVER_PORT, 10) || 8000;
 
 const corsOptions = {
-  origin: "*"
+  origin: ["http://192.168.1.144:5175"],
+  credentails: true
 };
 
 process.env.TZ = "Asia/Kolkata";
@@ -38,7 +39,7 @@ registrationRoute(app)
 authRoutes(app)
 
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   getConnection()
   console.log(`App listening on port ${PORT}`)
 })
