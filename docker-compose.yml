@@ -1,0 +1,50 @@
+services:
+  nodejs:
+    build:
+      context : .
+      dockerfile : Dockerfile
+
+    command: >
+      sh -c "npx nodemon App.js"
+
+    volumes:
+      - .:/app
+
+    expose:
+      - "8000"
+
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - oroko_network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - oroko_network
+    restart: unless-stopped
+
+networks:
+  oroko_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
